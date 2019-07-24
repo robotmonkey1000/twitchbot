@@ -54,6 +54,7 @@ opts = {
 };
 
 
+
 function createClient(){
 
 
@@ -68,6 +69,7 @@ function createClient(){
   client.connect().catch(error =>{
     console.log(error);
   });
+
 
   // Called every time a message comes in
   function onMessageHandler (target, context, msg, self) {
@@ -135,6 +137,12 @@ function createClient(){
       case "!discord":
         client.say(target, "Join the discord at: https://discordapp.com/invite/fsW6vgx");
         break;
+      case "!twitter":
+        client.say(target, "Follow me on twitter at https://twitter.com/robotmonkey1000.");
+        break;
+      case "!instagram":
+        client.say(target, "Follow me on instagram at https://instagram.com/robotmonkey1000.");
+        break;
       default:
         if(context.badges.broadcaster) {return;}
         if(context.badges.subscriber){
@@ -175,10 +183,14 @@ function createClient(){
     const sides = 6;
     return Math.floor(Math.random() * sides) + 1;
   }
+  function socialMedia(){
+    client.say("robotmonkey1000", "Hey! Just a reminder to check out my instagram and twitter where I post about stream stuff and my life. Also Join the discord and meet some peeps and you can also talk with me! Use !twitter, !instagram, or !discord");
+  }
 
   // Called every time the bot connects to Twitch chat
   function onConnectedHandler (addr, port) {
     console.log(`* Connected to ${addr}:${port}`);
+    setInterval(socialMedia, 2700000);
   }
 }
 

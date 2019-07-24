@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/index.css">
+  <title></title>
+</head>
+
+<body>
+  <div class="chatters">
+    <h1>Top Chatters Levels: </h1>
+    <div id="levels"></div>
+
+  </div>
+
+  <script type="text/javascript">
+    const div = document.getElementById('levels');
+
+    async function getTopUsers()
+    {
+      // console.log("Updating List");
+      div.innerHTML = "";
+
+      const response = await fetch('/api/userlevels');
+      const userLevels = await response.json();
+      // console.log(userLevels);
+
+      var newDiv = document.createElement('div');
+      if (userLevels.people)
+      {
+        //console.log(userLevels);
+        for (var i = 0; i < 3; i++)
+        {
+          if (userLevels.people[i])
+          {
+            var header = "h" + (i + 2)
+            var p = document.createElement(header);
+            p.innerText = userLevels.people[i].username + ": " + userLevels.people[i].currentLevel
+            newDiv.appendChild(p);
+          }
+        }
+      }
+
+      div.innerHTML = newDiv.innerHTML;
+    }
+    setInterval(() =>
+    {
+      getTopUsers()
+    }, 10000);
+  </script>
+</body>
+
+</html>

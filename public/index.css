@@ -1,0 +1,10 @@
+@font-face {
+  font-family: europhonic;
+  src: url("./europhonic.otf");
+}
+
+.chatters{
+  font-family: europhonic;
+  letter-spacing: 2px;
+  color: red;
+}

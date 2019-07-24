@@ -1,0 +1,17 @@
+{
+  "name": "robochimp",
+  "version": "0.0.1",
+  "description": "Twitch bot for robotmonkey1000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Robotmonkey1000",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "npm": "^6.9.0",
+    "tmi.js": "^1.4.2"
+  }
+}

@@ -18,6 +18,12 @@ fs.writeFile('expbkup.json', JSON.stringify(exps), (err) =>{
   console.log("XPS have been backed up!");
 });
 
+fs.writeFile('commandsbkup.json', JSON.stringify(commands), (err) =>{
+  if(err) throw err;
+  console.log("Commands have been backed up!");
+});
+
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/public/index.html'));
@@ -37,6 +43,31 @@ app.get('/api/userlevels', (req, res) =>{
   }
 
   res.send(json);
+});
+
+app.get('/api/commands/get', (req, res) =>{
+  res.send(commands);
+});
+
+app.post('/api/commands/add', (req, res) =>{
+  if(!req.body.commandName) {return;}
+  commands[req.body.commandName] = {
+    "say": req.body.chatMessage,
+    "command": req.body.serverCommand
+  }
+  if(commands[req.body.commandName] && req.body.chatMessage == "" && req.body.serverCommand == ""){
+    delete commands[req.body.commandName];
+  }
+  fs.writeFile('commands.json', JSON.stringify(commands), (err) =>{
+    if(err) throw err;
+    console.log("Commands have been saved!");
+  });
+  //console.log(req.body);
+  res.sendFile(path.join(__dirname + '/public/commands/commands.html'));
+});
+
+app.get('/widget/:widgetId', (req, res) =>{
+  res.sendFile(path.join(__dirname + '/public/widget/' + req.param.widgetId + '/index.html'));
 });
 
 app.listen(3000);
@@ -106,42 +137,20 @@ function createClient(){
 
     }
     const commandName = msg.trim();
-    /*if(commands[commandName]){
+    if(commands[commandName]){
       //client.say(target, commands[commandName].say);
       //console.log(commands[commandName].say);
       client.say(target, eval(commands[commandName].say));
       if(commands[commandName].command)
         eval(commands[commandName].command);
-    }*/
+    }
+//"say": "context.username + \" is currently level \" + exps.people[context[\"user-id\"]].currentLevel + \". The current amount of xp is \" + (exps.people[context[\"user-id\"]].currentXP) + \", only \" + (((exps.people[context[\"user-id\"]].currentLevel + 1) * 100) - exps.people[context[\"user-id\"]].currentXP) + \"XP left to level up.\"",
 
     // If the command is known, let's execute it
     switch(commandName){
-      case "!donate":
-        client.say(target, "Donate at streamlabs.com/robotmonkey1000/home ! For more information about current goals use the !goals command.");
-        break;
       case "!goals":
         client.say(target, "Monthly Donation Goal: Currently working towards a new mic as mine is breaking. Otherwise donations cover living costs and giveaway costs. This allows me to keep going forward with streaming and giveaways.");
         client.say(target, "Follower Goal: When reached depending on the milestone either a $20 or $60 giveaway.");
-        break;
-      /*
-      case "!helpdsadsadsadsasadsads":
-        client.say(target, "~Command~ ~!donate~ Gives information about donating and where to donate. ~!goals~ Gives information about current goals.");
-        //
-        //client.say(target, "!goals");
-        break;
-      */
-      case "!xp":
-        client.say(target, context.username + " is currently level " + exps.people[context["user-id"]].currentLevel + ". The current amount of xp is " + (exps.people[context["user-id"]].currentXP) + ", only " + (((exps.people[context["user-id"]].currentLevel + 1) * 100) - exps.people[context["user-id"]].currentXP) + "XP left to level up.");
-        //client.say(target, context.username + " is currently level " + exps.people[context["user-id"]]);
-        break;
-      case "!discord":
-        client.say(target, "Join the discord at: https://discordapp.com/invite/fsW6vgx");
-        break;
-      case "!twitter":
-        client.say(target, "Follow me on twitter at https://twitter.com/robotmonkey1000.");
-        break;
-      case "!instagram":
-        client.say(target, "Follow me on instagram at https://instagram.com/robotmonkey1000.");
         break;
       default:
         if(context.badges.broadcaster) {return;}

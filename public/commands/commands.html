@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Commands Page</title>
+</head>
+
+<body>
+  <h1>Commands!</h1>
+  <form class="addCommand" action="/api/commands/add" method="post">
+    <h3>Command Name:<br>
+      <input type="text" name="commandName"><br>
+      Chat:<br>
+      <input type="text" name="chatMessage"><br>
+      Server:<br>
+      <input type="text" name="serverCommand"><br><br>
+      <input type="submit">
+    </h3>
+  </form>
+  <div id="commands"></div>
+
+  <script type="text/javascript">
+    const div = document.getElementById("commands");
+    async function getCommands()
+    {
+      const response = await fetch('/api/commands/get');
+      const commands = await response.json();
+
+      for (command in commands)
+      {
+        var newDiv = document.createElement('div');
+
+        var header = document.createElement('h2');
+        header.innerText = command;
+        newDiv.appendChild(header);
+        if (commands[command].say)
+        {
+          var p1 = document.createElement('p');
+          p1.innerText = "Chat: " + commands[command].say;
+          newDiv.appendChild(p1);
+        }
+        if (commands[command].command)
+        {
+          var p2 = document.createElement('p');
+          p2.innerText = "Server: " + commands[command].command
+          newDiv.appendChild(p2);
+        }
+        div.appendChild(newDiv);
+      }
+    }
+    getCommands();
+  </script>
+</body>
+
+</html>

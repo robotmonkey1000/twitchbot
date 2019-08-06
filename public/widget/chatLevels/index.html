@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" type="text/css" href="./chatLevels/index.css">
   <title></title>
 </head>
 
@@ -20,11 +20,12 @@
     async function getTopUsers()
     {
       // console.log("Updating List");
-      div.innerHTML = "";
+      //div.innerHTML = "";
 
       const response = await fetch('/api/userlevels');
       const userLevels = await response.json();
       // console.log(userLevels);
+      var initial = true;
 
       var newDiv = document.createElement('div');
       if (userLevels.people)
@@ -32,17 +33,41 @@
         //console.log(userLevels);
         for (var i = 0; i < 5; i++)
         {
-          if (userLevels.people[i])
+          if (div.children[i])
           {
-            var header = "h" + (i + 2)
-            var p = document.createElement(header);
-            p.innerText = userLevels.people[i].username + ": " + userLevels.people[i].currentLevel
-            newDiv.appendChild(p);
+            initial = false;
+            if ((userLevels.people[i].username + ": " + userLevels.people[i].currentLevel) != div.children[i].innerText)
+            {
+              console.log("There is a different person!");
+              div.children[i].innerText = "";
+              div.children[i].innerText = userLevels.people[i].username + ": " + userLevels.people[i].currentLevel;
+            }
+            /*
+            if (userLevels.people[i])
+            {
+              var header = "h" + (i + 2)
+              var p = document.createElement(header);
+              p.innerText = userLevels.people[i].username + ": " + userLevels.people[i].currentLevel;
+              newDiv.appendChild(p);
+            }
+            */
+          }
+          else
+          {
+            initial = true;
+            if (userLevels.people[i])
+            {
+              var header = "h" + (i + 2)
+              var p = document.createElement(header);
+              p.innerText = userLevels.people[i].username + ": " + userLevels.people[i].currentLevel;
+              newDiv.appendChild(p);
+            }
           }
         }
+        if (initial)
+          div.innerHTML = newDiv.innerHTML;
       }
 
-      div.innerHTML = newDiv.innerHTML;
     }
     setInterval(() =>
     {

@@ -9,6 +9,8 @@ const app = express();
 const path = require('path');
 const commands = require('./commands.json');
 const secret = require("./secret.json");
+const crypto = require('crypto');
+const logins = require('./logins.json');
 
 var token;
 var opts;
@@ -23,11 +25,12 @@ fs.writeFile('commandsbkup.json', JSON.stringify(commands), (err) =>{
   console.log("Commands have been backed up!");
 });
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: false }));/*
+app.use(express.static(path.join(__dirname, 'public')));*/
+
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/public/index.html'));
-})
+});
 
 app.get('/api/userlevels', (req, res) =>{
   var people = [];
@@ -49,8 +52,30 @@ app.get('/api/commands/get', (req, res) =>{
   res.send(commands);
 });
 
+function encrypt(text){
+  console.log(text);
+  return text;
+}
+
+function verify(username, password){
+  for(let user of logins.logins){
+      console.log("Checking");
+      //console.log(user.userName, user.password);
+      if((encrypt(username) == user.userName) && (encrypt(password) == user.password)){
+        return true;
+      }
+    }
+    return false;
+}
 app.post('/api/commands/add', (req, res) =>{
-  if(!req.body.commandName) {return;}
+
+  if(!req.body.commandName || !req.body.userName || !req.body.password) {
+    res.sendFile(path.join(__dirname + '/public/commands/commands.html'));
+    return;
+  }
+  console.log(verify(req.body.userName, req.body.password));
+  //console.log(req.body.userName, req.body.password);
+
   commands[req.body.commandName] = {
     "say": req.body.chatMessage,
     "command": req.body.serverCommand
@@ -67,8 +92,13 @@ app.post('/api/commands/add', (req, res) =>{
 });
 
 app.get('/widget/:widgetId', (req, res) =>{
-  res.sendFile(path.join(__dirname + '/public/widget/' + req.param.widgetId + '/index.html'));
+  //console.log("YEET");
+  console.log(req.params);
+    //res.sendFile(path.join(__dirname + '/public/widget/' + req.params.widgetId + '/index.css'));
+    res.sendFile(path.join(__dirname + '/public/widget/' + req.params.widgetId + '/index.html'));
 });
+
+app.use(express.static('public'))
 
 app.listen(3000);
 
@@ -174,8 +204,6 @@ function createClient(){
             console.log("XPS have been saved!");
           });
         }
-
-
     }
 
     // if (commandName === '!dice') {

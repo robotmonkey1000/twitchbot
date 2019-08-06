@@ -9,13 +9,17 @@
 <body>
   <h1>Commands!</h1>
   <form class="addCommand" action="/api/commands/add" method="post">
-    <h3>Command Name:<br>
-      <input type="text" name="commandName"><br>
-      Chat:<br>
-      <input type="text" name="chatMessage"><br>
-      Server:<br>
-      <input type="text" name="serverCommand"><br><br>
-      <input type="submit">
+    Username:<br>
+    <input type="text" name="userName"><br>
+    Password:<br>
+    <input type="password" name="password"><br>
+    <h3>Command Name:</h3>
+    <input type="text" name="commandName"><br>
+    Chat:<br>
+    <input type="text" name="chatMessage"><br>
+    Server:<br>
+    <input type="text" name="serverCommand"><br><br>
+    <input type="submit">
     </h3>
   </form>
   <div id="commands"></div>

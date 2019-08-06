@@ -9,6 +9,7 @@
   "author": "Robotmonkey1000",
   "license": "ISC",
   "dependencies": {
+    "crypto": "^1.0.1",
     "express": "^4.17.1",
     "node-fetch": "^2.6.0",
     "npm": "^6.9.0",

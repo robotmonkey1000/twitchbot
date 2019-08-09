@@ -183,12 +183,15 @@ function createClient(){
         client.say(target, "Follower Goal: When reached depending on the milestone either a $20 or $60 giveaway.");
         break;
       default:
-        if(context.badges.broadcaster) {return;}
-        if(context.badges.subscriber){
-          console.log("A Sub has talked!");
-          exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
-        }else{
-          exps.people[context["user-id"]].currentXP += (1 + msg.length/10) * 10;
+        if(context.badges){
+          if(context.badges.broadcaster) {return;}
+          if(context.badges.subscriber){
+            console.log("A Sub has talked!");
+            exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
+          }
+        }else
+        {
+            exps.people[context["user-id"]].currentXP += (1 + msg.length/10) * 10;
         }
         //console.log(exps.people[context["user-id"]].currentXP);
         if(exps.people[context["user-id"]].currentXP >= ((exps.people[context["user-id"]].currentLevel + 1) * 100))

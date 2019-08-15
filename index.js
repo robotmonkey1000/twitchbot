@@ -136,6 +136,8 @@ var userSwearCount = {
 
   }
 };
+
+var pendingDuels = [];
   // Called every time a message comes in
   function onMessageHandler (target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
@@ -214,23 +216,111 @@ var userSwearCount = {
 
     }
     //Trimming the spaces in the message to get the command. This currently only allows commands without arguments
-    const commandName = msg.trim().toLowerCase();
+    var commandName = msg.trim().toLowerCase();
+    commandName = commandName.split(' ');
+    //console.log(commandName);
 
     //Checks the commands file to see if it has that specified command in it.
-    if(commands[commandName]){
+    if(commands[commandName[0]]){
       //client.say(target, commands[commandName].say);
       //console.log(commands[commandName].say);
 
       //the bot then says the response from the file, currently using the EVAL function but is terrible due to possible execution of unwanted code. Gonna fix this probably in next big update.
-      client.say(target, eval(commands[commandName].say));
+      client.say(target, eval(commands[commandName[0]].say));
       //If the command needs something executed by the bot (something like console.logs or adjusting settings) it uses the command property and executes it
-      if(commands[commandName].command)
-        eval(commands[commandName].command);
+      if(commands[commandName[0]].command)
+        eval(commands[commandName[0]].command);
     }
 //"say": "context.username + \" is currently level \" + exps.people[context[\"user-id\"]].currentLevel + \". The current amount of xp is \" + (exps.people[context[\"user-id\"]].currentXP) + \", only \" + (((exps.people[context[\"user-id\"]].currentLevel + 1) * 100) - exps.people[context[\"user-id\"]].currentXP) + \"XP left to level up.\"",
 
+//Shoutout
+//Discord Rank
+//Join discord
+//Play game with me
+
     // If the command is known and not in the file, let's execute it
-    switch(commandName){
+    switch(commandName[0]){
+      case '!duel':
+        if(!commandName[1] || !commandName[2] || isNaN(commandName[2]) || commandName[1] == context.username)
+        {
+          return client.say(target, "Make sure when you're using this command it looks like \"!duel user maxLevels\". You also can't duel your self silly incase you tried!");
+        }
+
+        if(commandName[2] > exps.people[context["user-id"]].currentLevel)
+        {
+          return client.say(target, "You cannot duel with more levels then you have!");
+        }
+        pendingDuels.push({
+          'starter': context.username,
+          'other': commandName[1],
+          'maxAmount': commandName[2]
+        });
+        //console.log(pendingDuels);
+        client.say(target, `Hey @${commandName[1]}! ${context.username} is asking you to a duel with a max loss/gain of ${commandName[2]}! Use \"!duelaccept ${context.username}\" to accept their duel!`);
+        break;
+      case '!duelaccept':
+        //console.log(pendingDuels)
+        for(var duel of pendingDuels)
+        {
+          //console.log(duel);
+          if(duel.other == context.username && duel.starter == commandName[1])
+          {
+            client.say(target, `Duel Commencing!`);
+            var starting = Math.floor(Math.random() * 2);
+            var firstUserHitCount = 0;
+            var secondUserHitCount = 0;
+            var firstHit = 0;
+            var secondHit = 0;
+            var counter = 1;
+            while( firstUserHitCount < 4 && secondUserHitCount < 4){
+              if(counter % 2 != 0)
+              {
+                firstHit = Math.floor(Math.random() * 4);
+                if(firstHit != 0)
+                {
+                    firstUserHitCount++;
+                }
+              }else {
+                secondHit = Math.floor(Math.random() * 4);
+                if(secondHit != 0)
+                {
+                  secondUserHitCount++;
+                }
+              }
+              counter++;
+            }
+            var levelAmount = Math.floor(Math.random() * parseInt(duel.maxAmount) + 1);
+            //console.log(levelAmount);
+            if(firstUserHitCount > 4)
+            {
+              if(starting == 1){
+                client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
+                editLevel(context.username, levelAmount);
+                editLevel(duel.starter, (-levelAmount));
+              }else{
+                client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
+                editLevel(context.username, (-levelAmount));
+                editLevel(duel.starter, levelAmount);
+              }
+
+            }else {
+              if(starting == 1){
+                  client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
+                  editLevel(context.username, (-levelAmount));
+                  editLevel(duel.starter, levelAmount);
+              }else{
+                client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
+                editLevel(context.username, levelAmount);
+                editLevel(duel.starter, (-levelAmount));
+              }
+            }
+
+            return;
+            //console.log("A Duel Has Been Found");
+          }
+        }
+        client.say(target, `No duel was found again user ${commandName[1]}.`);
+        break;
       case "!goals":
         client.say(target, "Monthly Donation Goal: Currently working towards a new mic as mine is breaking. Otherwise donations cover living costs and giveaway costs. This allows me to keep going forward with streaming and giveaways.");
         client.say(target, "Follower Goal: When reached depending on the milestone either a $20 or $60 giveaway.");
@@ -288,6 +378,23 @@ var userSwearCount = {
   function onConnectedHandler (addr, port) {
     console.log(`* Connected to ${addr}:${port}`);
     setInterval(socialMedia, 2700000);
+  }
+}
+
+function editLevel(username, amount)
+{
+  //console.log('yeet');
+  for(var person in exps.people)
+  {
+    if(exps.people[person].username == username)
+    {
+      exps.people[person].currentLevel += amount;
+      if(exps.people[person].currentLevel < 0)
+      {
+        exps.people[person].currentLevel = 0;
+      }
+      return;
+    }
   }
 }
 

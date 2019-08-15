@@ -131,21 +131,68 @@ function createClient(){
     console.log(error);
   });
 
+var userSwearCount = {
+  "people":{
 
+  }
+};
   // Called every time a message comes in
   function onMessageHandler (target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
 
-    // console.log(badWords);
-    if(regex.test(msg)){
-      client.deletemessage(target, context.id)
-      .then((data) => {
-          // data returns [channel]
-      }).catch((err) => {
-          console.error(err);
-      });
+    if(context.badges)
+    {
+      if(context.badges.vip)
+      {
+        if(userSwearCount.people[context.username]){
+          if(regex.test(msg.toLowerCase())){
+            userSwearCount.people[context.username].swearCount++;
+            console.log("Vip is swearing!");
+          }
+        }else {
+          userSwearCount.people[context.username] = {}
+          userSwearCount.people[context.username].swearCount = 0;
 
+        }
+      }
     }
+    // console.log(badWords);
+    if(context.badges){
+      if(context.badges.vip){
+        if(userSwearCount.people[context.username].swearCount > 5)
+        {
+          if(regex.test(msg.toLowerCase())){
+            client.deletemessage(target, context.id)
+            .then((data) => {
+                // data returns [channel]
+            }).catch((err) => {
+                console.error(err);
+            });
+          }
+        }else{
+
+        }
+      }else {
+        if(regex.test(msg.toLowerCase())){
+          client.deletemessage(target, context.id)
+          .then((data) => {
+              // data returns [channel]
+          }).catch((err) => {
+              console.error(err);
+          });
+        }
+      }
+    }else {
+      if(regex.test(msg.toLowerCase())){
+        client.deletemessage(target, context.id)
+        .then((data) => {
+            // data returns [channel]
+        }).catch((err) => {
+            console.error(err);
+        });
+      }
+    }
+
     //console.log(context);
 
 //    console.log(target);
@@ -166,25 +213,35 @@ function createClient(){
       // exps.people[context["user-id"]].currentLevel = 0;
 
     }
-    const commandName = msg.trim();
+    //Trimming the spaces in the message to get the command. This currently only allows commands without arguments
+    const commandName = msg.trim().toLowerCase();
+
+    //Checks the commands file to see if it has that specified command in it.
     if(commands[commandName]){
       //client.say(target, commands[commandName].say);
       //console.log(commands[commandName].say);
+
+      //the bot then says the response from the file, currently using the EVAL function but is terrible due to possible execution of unwanted code. Gonna fix this probably in next big update.
       client.say(target, eval(commands[commandName].say));
+      //If the command needs something executed by the bot (something like console.logs or adjusting settings) it uses the command property and executes it
       if(commands[commandName].command)
         eval(commands[commandName].command);
     }
 //"say": "context.username + \" is currently level \" + exps.people[context[\"user-id\"]].currentLevel + \". The current amount of xp is \" + (exps.people[context[\"user-id\"]].currentXP) + \", only \" + (((exps.people[context[\"user-id\"]].currentLevel + 1) * 100) - exps.people[context[\"user-id\"]].currentXP) + \"XP left to level up.\"",
 
-    // If the command is known, let's execute it
+    // If the command is known and not in the file, let's execute it
     switch(commandName){
       case "!goals":
         client.say(target, "Monthly Donation Goal: Currently working towards a new mic as mine is breaking. Otherwise donations cover living costs and giveaway costs. This allows me to keep going forward with streaming and giveaways.");
         client.say(target, "Follower Goal: When reached depending on the milestone either a $20 or $60 giveaway.");
         break;
       default:
+        //This checks to see if the current messager has any badges (mod, vip, broadcaster, etc)
         if(context.badges){
+          //If its the broadcaster messaging we dont want to level them up.
           if(context.badges.broadcaster) {return;}
+
+          //
           if(context.badges.subscriber){
             console.log("A Sub has talked!");
             exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;

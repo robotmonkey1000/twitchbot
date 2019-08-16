@@ -131,14 +131,28 @@ function createClient(){
     console.log(error);
   });
 
-var userSwearCount = {
-  "people":{
+  var userSwearCount = {
+    "people":{
 
-  }
-};
+    }
+  };
 
 var pendingDuels = [];
   // Called every time a message comes in
+function deleteDuel(duel){
+    for(var _duel in pendingDuels)
+    {
+      if(pendingDuels[_duel] == duel)
+      {
+        //console.log(pendingDuels);
+        pendingDuels.splice(_duel, 1);
+        //console.log(pendingDuels);
+        return;
+      }
+    }
+    //console.log(pendingDuels, "\n");
+    //console.log("No Duel Found\n", duel);
+  }
   function onMessageHandler (target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
 
@@ -243,20 +257,22 @@ var pendingDuels = [];
       case '!duel':
         if(!commandName[1] || !commandName[2] || isNaN(commandName[2]) || commandName[1] == context.username)
         {
-          return client.say(target, "Make sure when you're using this command it looks like \"!duel user maxLevels\". You also can't duel your self silly incase you tried!");
+          return client.say(target, "Use !duel like \"!duel user maxLevels\". You also can't duel your self silly incase you tried!");
         }
 
         if(commandName[2] > exps.people[context["user-id"]].currentLevel)
         {
           return client.say(target, "You cannot duel with more levels then you have!");
         }
-        pendingDuels.push({
+        var duel = {
           'starter': context.username,
           'other': commandName[1],
           'maxAmount': commandName[2]
-        });
+        };
+        pendingDuels.push(duel);
+        setTimeout(deleteDuel, 45000, duel);
         //console.log(pendingDuels);
-        client.say(target, `Hey @${commandName[1]}! ${context.username} is asking you to a duel with a max loss/gain of ${commandName[2]}! Use \"!duelaccept ${context.username}\" to accept their duel!`);
+        client.say(target, `Hey @${commandName[1]}! You are asked to a duel with a bounty of upto ${commandName[2]}! Use \"!duelaccept ${context.username}\" to accept their duel!`);
         break;
       case '!duelaccept':
         //console.log(pendingDuels)
@@ -314,12 +330,12 @@ var pendingDuels = [];
                 editLevel(duel.starter, (-levelAmount));
               }
             }
-
+            deleteDuel(duel);
             return;
             //console.log("A Duel Has Been Found");
           }
         }
-        client.say(target, `No duel was found again user ${commandName[1]}.`);
+        client.say(target, `No duel was found against user ${commandName[1]}.`);
         break;
       case "!goals":
         client.say(target, "Monthly Donation Goal: Currently working towards a new mic as mine is breaking. Otherwise donations cover living costs and giveaway costs. This allows me to keep going forward with streaming and giveaways.");
@@ -333,7 +349,7 @@ var pendingDuels = [];
 
           //
           if(context.badges.subscriber){
-            console.log("A Sub has talked!");
+            //console.log("A Sub has talked!");
             exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
           }
         }else

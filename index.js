@@ -319,12 +319,15 @@ function deleteDuel(duel){
                 editLevel(duel.starter, levelAmount);
               }
 
-            }else {
-              if(starting == 1){
+            }else
+            {
+              if(starting == 1)
+              {
                   client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
                   editLevel(context.username, (-levelAmount));
                   editLevel(duel.starter, levelAmount);
-              }else{
+              }else
+              {
                 client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
                 editLevel(context.username, levelAmount);
                 editLevel(duel.starter, (-levelAmount));
@@ -338,24 +341,35 @@ function deleteDuel(duel){
         client.say(target, `No duel was found against user ${commandName[1]}.`);
         break;
       case "!goals":
-        client.say(target, "Monthly Donation Goal: Currently working towards a new mic as mine is breaking. Otherwise donations cover living costs and giveaway costs. This allows me to keep going forward with streaming and giveaways.");
+        client.say(target, "Monthly Donation Goal: Currently working towards a new keyboard and mouse, as well as new PC parts!. Otherwise donations cover living costs and giveaway costs. This allows me to keep going forward with streaming and giveaways.");
         client.say(target, "Follower Goal: When reached depending on the milestone either a $20 or $60 giveaway.");
         break;
       default:
+        //This is the base XP rate;
+        var levelRate = 1;
         //This checks to see if the current messager has any badges (mod, vip, broadcaster, etc)
-        if(context.badges){
+        if(context.badges)
+        {
           //If its the broadcaster messaging we dont want to level them up.
           if(context.badges.broadcaster) {return;}
 
-          //
-          if(context.badges.subscriber){
+          // the user is a sub. The rate a sub gains xp is based on how long they have been subbing and then +2 so at one month it is (0 + 2 = 2) + 1 (which is the base rate)                                                                                                                      months + customRate + baseRate
+          if(context.badges.subscriber)
+          {
             //console.log("A Sub has talked!");
-            exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
+            levelRate += (parseInt(context.badges.subscriber) + 2);
+            console.log(context["username"] + ":" + context.badges.subscriber); //See what the number is;
+            //exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
           }
-        }else
-        {
-            exps.people[context["user-id"]].currentXP += (1 + msg.length/10) * 10;
+          // the user is a vip VIP's get a rate of +1
+          if(context.badges.vip)
+          {
+            levelRate += 1;
+          }
+
         }
+        exps.people[context["user-id"]].currentXP += (levelRate + msg.length/10) * 10;
+
         //console.log(exps.people[context["user-id"]].currentXP);
         if(exps.people[context["user-id"]].currentXP >= ((exps.people[context["user-id"]].currentLevel + 1) * 100))
         {

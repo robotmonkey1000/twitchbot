@@ -17,6 +17,7 @@ const port = 1000;
 
 var token;
 var opts;
+var live = false;
 
 fs.writeFile('expbkup.json', JSON.stringify(exps), (err) =>{
   if(err) throw err;
@@ -159,6 +160,17 @@ function deleteDuel(duel){
   }
   function onMessageHandler (target, context, msg, self) {
     if (self) { return; } // Ignore messages from the bot
+    // console.log(context);
+    // console.log(msg);
+    if(context.username == "robotmonkey1000") {
+      if(msg == "!live") {
+        live = !live;
+        var mid = live == true ? "": "not ";
+        // console.log(mid);
+        client.say(target, "Robotmonkey1000 is now " + mid + "live");
+      }
+    }
+
 
     if(context.badges)
     {
@@ -222,6 +234,11 @@ function deleteDuel(duel){
     // Remove whitespace from chat message
     // console.log(exps.people[context.username]);
     //Formula: 1 + messageLength/10;
+       
+    if(!live) {
+      return;
+    }
+
     if(!exps.people[context["user-id"]]){
       console.log("User not in database, adding them!");
       exps.people[context["user-id"]] = {
@@ -233,6 +250,7 @@ function deleteDuel(duel){
       // exps.people[context["user-id"]].currentLevel = 0;
 
     }
+    
     //Trimming the spaces in the message to get the command. This currently only allows commands without arguments
     var commandName = msg.trim().toLowerCase();
     commandName = commandName.split(' ');
@@ -292,12 +310,8 @@ function deleteDuel(duel){
             var firstHit = 0;
             var secondHit = 0;
             var counter = 1;
-<<<<<<< HEAD
-            while( firstUserHitCount < 4 && secondUserHitCount < 4){
-=======
             while( firstUserHitCount < 4 && secondUserHitCount < 4)
             {
->>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
               if(counter % 2 != 0)
               {
                 firstHit = Math.floor(Math.random() * 4);
@@ -305,13 +319,7 @@ function deleteDuel(duel){
                 {
                     firstUserHitCount++;
                 }
-<<<<<<< HEAD
               }else {
-=======
-              }
-              else
-              {
->>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
                 secondHit = Math.floor(Math.random() * 4);
                 if(secondHit != 0)
                 {
@@ -324,45 +332,22 @@ function deleteDuel(duel){
             //console.log(levelAmount);
             if(firstUserHitCount > 4)
             {
-<<<<<<< HEAD
               if(starting == 1){
                 client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
                 editLevel(context.username, levelAmount);
                 editLevel(duel.starter, (-levelAmount));
               }else{
-=======
-              if(starting == 1)
-              {
-                client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
-                editLevel(context.username, levelAmount);
-                editLevel(duel.starter, (-levelAmount));
-              }
-              else
-              {
->>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
                 client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
                 editLevel(context.username, (-levelAmount));
                 editLevel(duel.starter, levelAmount);
               }
 
-<<<<<<< HEAD
             }else {
               if(starting == 1){
                   client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
                   editLevel(context.username, (-levelAmount));
                   editLevel(duel.starter, levelAmount);
               }else{
-=======
-            }else
-            {
-              if(starting == 1)
-              {
-                  client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
-                  editLevel(context.username, (-levelAmount));
-                  editLevel(duel.starter, levelAmount);
-              }else
-              {
->>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
                 client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
                 editLevel(context.username, levelAmount);
                 editLevel(duel.starter, (-levelAmount));
@@ -392,7 +377,6 @@ function deleteDuel(duel){
         }
         break;
       default:
-<<<<<<< HEAD
         //This checks to see if the current messager has any badges (mod, vip, broadcaster, etc)
         if(context.badges){
           //If its the broadcaster messaging we dont want to level them up.
@@ -402,48 +386,6 @@ function deleteDuel(duel){
           if(context.badges.subscriber){
             //console.log("A Sub has talked!");
             exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
-=======
-
-        //This is the base XP rate;
-        var levelRate = 1;
-        //This checks to see if the current messager has any badges (mod, vip, broadcaster, etc)
-        if(context.badges)
-        {
-          var subReg = /(\w+\/\d+)/
-          if(context['badge-info'])
-            var info = context['badge-info'].split(subReg)
-          //console.log();
-          //console.log(context["badge-info"]);
-          //If its the broadcaster messaging we dont want to level them up.
-          if(context.badges.broadcaster) {return;}
-
-          //Create a blocked list so people cannot level up
-          if(context.username == "amoderat0r") {return;}
-
-          // the user is a sub. The rate a sub gains xp is based on how long they have been subbing and then +2 so at one month it is (0 + 2 = 2) + 1 (which is the base rate)                                                                                                                      months + customRate + baseRate
-          if(context.badges.subscriber)
-          {
-            var replaceSub = /(\w+\/)/g
-            //console.log("A Sub has talked!");
-            for(var data in info)
-            {
-              if(info[data].includes('subscriber')){
-                console.log("foundMatch");
-                info[data] = info[data].replace(replaceSub, '');
-                console.log(context.username + ': ' + info[data]);
-                //console.log(info[data]);
-                //console.log(parseInt(info[data]));
-                if(!isNaN(parseInt(info[data])))
-                {
-                  levelRate += parseInt(info[data]);
-                }
-                break;
-              }
-            }
-            //levelRate += (parseInt(context.badges.subscriber) + 2);
-            //console.log(context["username"] + ":" + context.badges.subscriber); //See what the number is;
-            //exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
->>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
           }
           // the user is a vip. VIP's get a rate of +1
           if(context.badges.vip)

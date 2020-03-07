@@ -165,9 +165,9 @@ function deleteDuel(duel){
     if(context.username == "robotmonkey1000") {
       if(msg == "!live") {
         live = !live;
-        var mid = live == true ? "": "not ";
+        var status = live == true ? "live": "offline";
         // console.log(mid);
-        client.say(target, "Robotmonkey1000 is now " + mid + "live");
+        client.say(target, "Robotmonkey1000 is now " + status);
       }
     }
 

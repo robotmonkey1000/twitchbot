@@ -1,0 +1,8 @@
+{
+"ignore": [
+    "commandsbkup.json",
+    "expbkup.json",
+    "commands.json",
+    "exp.json"
+  ]
+}

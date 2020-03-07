@@ -11,6 +11,9 @@ const commands = require('./commands.json');
 const secret = require("./secret.json");
 const crypto = require('crypto');
 const logins = require('./logins.json');
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+const port = 1000;
 
 var token;
 var opts;
@@ -25,8 +28,8 @@ fs.writeFile('commandsbkup.json', JSON.stringify(commands), (err) =>{
   console.log("Commands have been backed up!");
 });
 
-app.use(express.urlencoded({ extended: false }));/*
-app.use(express.static(path.join(__dirname, 'public')));*/
+app.use(express.urlencoded({ extended: false }));
+//app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname + '/public/index.html'));
@@ -100,7 +103,7 @@ app.get('/widget/:widgetId', (req, res) =>{
 
 app.use(express.static('public'))
 
-app.listen(3000);
+//app.listen(3000);
 
 
 // Define configuration options
@@ -288,7 +291,8 @@ function deleteDuel(duel){
             var firstHit = 0;
             var secondHit = 0;
             var counter = 1;
-            while( firstUserHitCount < 4 && secondUserHitCount < 4){
+            while( firstUserHitCount < 4 && secondUserHitCount < 4)
+            {
               if(counter % 2 != 0)
               {
                 firstHit = Math.floor(Math.random() * 4);
@@ -296,7 +300,9 @@ function deleteDuel(duel){
                 {
                     firstUserHitCount++;
                 }
-              }else {
+              }
+              else
+              {
                 secondHit = Math.floor(Math.random() * 4);
                 if(secondHit != 0)
                 {
@@ -309,11 +315,14 @@ function deleteDuel(duel){
             //console.log(levelAmount);
             if(firstUserHitCount > 4)
             {
-              if(starting == 1){
+              if(starting == 1)
+              {
                 client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
                 editLevel(context.username, levelAmount);
                 editLevel(duel.starter, (-levelAmount));
-              }else{
+              }
+              else
+              {
                 client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
                 editLevel(context.username, (-levelAmount));
                 editLevel(duel.starter, levelAmount);
@@ -344,37 +353,76 @@ function deleteDuel(duel){
         client.say(target, "Monthly Donation Goal: Currently working towards a new keyboard and mouse, as well as new PC parts!. Otherwise donations cover living costs and giveaway costs. This allows me to keep going forward with streaming and giveaways.");
         client.say(target, "Follower Goal: When reached depending on the milestone either a $20 or $60 giveaway.");
         break;
+      case "!link":
+        //link discord username to twitch account
+        io.emit("tEvent", "something")
+        break;
+      case "!editlevel":
+        if(commandName[1] && !isNaN(parseInt(commandName[2])) && context.mod)
+        {
+          //console.log("editing Level");
+          if(commandName[1] == context.username){return;}
+          editLevel(commandName[1], parseInt(commandName[2]));
+        }
+        break;
       default:
+
         //This is the base XP rate;
         var levelRate = 1;
         //This checks to see if the current messager has any badges (mod, vip, broadcaster, etc)
         if(context.badges)
         {
+          var subReg = /(\w+\/\d+)/
+          if(context['badge-info'])
+            var info = context['badge-info'].split(subReg)
+          //console.log();
+          //console.log(context["badge-info"]);
           //If its the broadcaster messaging we dont want to level them up.
           if(context.badges.broadcaster) {return;}
+
+          //Create a blocked list so people cannot level up
+          if(context.username == "amoderat0r") {return;}
 
           // the user is a sub. The rate a sub gains xp is based on how long they have been subbing and then +2 so at one month it is (0 + 2 = 2) + 1 (which is the base rate)                                                                                                                      months + customRate + baseRate
           if(context.badges.subscriber)
           {
+            var replaceSub = /(\w+\/)/g
             //console.log("A Sub has talked!");
-            levelRate += (parseInt(context.badges.subscriber) + 2);
-            console.log(context["username"] + ":" + context.badges.subscriber); //See what the number is;
+            for(var data in info)
+            {
+              if(info[data].includes('subscriber')){
+                console.log("foundMatch");
+                info[data] = info[data].replace(replaceSub, '');
+                console.log(context.username + ': ' + info[data]);
+                //console.log(info[data]);
+                //console.log(parseInt(info[data]));
+                if(!isNaN(parseInt(info[data])))
+                {
+                  levelRate += parseInt(info[data]);
+                }
+                break;
+              }
+            }
+            //levelRate += (parseInt(context.badges.subscriber) + 2);
+            //console.log(context["username"] + ":" + context.badges.subscriber); //See what the number is;
             //exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
           }
-          // the user is a vip VIP's get a rate of +1
+          // the user is a vip. VIP's get a rate of +1
           if(context.badges.vip)
           {
             levelRate += 1;
+            console.log("Hey VIP talked! LevelRate: " + levelRate);
           }
 
         }
+        console.log(context.username + " has a level rate of " + levelRate);
         exps.people[context["user-id"]].currentXP += (levelRate + msg.length/10) * 10;
 
         //console.log(exps.people[context["user-id"]].currentXP);
         if(exps.people[context["user-id"]].currentXP >= ((exps.people[context["user-id"]].currentLevel + 1) * 100))
         {
           console.log(context.username + " has leveled up!");
-          exps.people[context["user-id"]].currentXP = 0;
+          exps.people[context["user-id"]].currentXP -= (exps.people[context["user-id"]].currentLevel + 1) * 100;
           exps.people[context["user-id"]].currentLevel++;
           exps.people[context["user-id"]].username = context.username;
           client.say(target, "Congratulations, " + context.username + " has become level " + exps.people[context["user-id"]].currentLevel);
@@ -411,6 +459,8 @@ function deleteDuel(duel){
   }
 }
 
+
+
 function editLevel(username, amount)
 {
   //console.log('yeet');
@@ -428,5 +478,10 @@ function editLevel(username, amount)
   }
 }
 
-
+http.listen(4000, function(){
+  console.log('listening on *:4000');
+});
+io.on('connection', function(socket){
+  console.log("A connection has been made");
+});
 createClient();

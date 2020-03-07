@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+  <link rel="stylesheet" type="text/css" href="./index.css">
+</head>
+
+<body>
+  <div id="display" class="" style="display:none;">
+    <img src="" alt="">
+    Test!
+  </div>
+
+  <script type="text/javascript">
+    var socket = io();
+
+    console.log(socket);
+    socket.on('tEvent', (data) =>
+    {
+      console.log(data);
+      var div = document.getElementById('display');
+      div.innerText = data;
+      div.style.display = "";
+      div.classList.add("showAnimation");
+
+    });
+  </script>
+</body>
+
+</html>

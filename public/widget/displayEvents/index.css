@@ -1,0 +1,10 @@
+@keyframes example {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+/* The element to apply the animation to */
+.showAnimation {
+  animation-name: example;
+  animation-duration: 4s;
+}

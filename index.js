@@ -292,8 +292,12 @@ function deleteDuel(duel){
             var firstHit = 0;
             var secondHit = 0;
             var counter = 1;
+<<<<<<< HEAD
+            while( firstUserHitCount < 4 && secondUserHitCount < 4){
+=======
             while( firstUserHitCount < 4 && secondUserHitCount < 4)
             {
+>>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
               if(counter % 2 != 0)
               {
                 firstHit = Math.floor(Math.random() * 4);
@@ -301,9 +305,13 @@ function deleteDuel(duel){
                 {
                     firstUserHitCount++;
                 }
+<<<<<<< HEAD
+              }else {
+=======
               }
               else
               {
+>>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
                 secondHit = Math.floor(Math.random() * 4);
                 if(secondHit != 0)
                 {
@@ -316,6 +324,13 @@ function deleteDuel(duel){
             //console.log(levelAmount);
             if(firstUserHitCount > 4)
             {
+<<<<<<< HEAD
+              if(starting == 1){
+                client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
+                editLevel(context.username, levelAmount);
+                editLevel(duel.starter, (-levelAmount));
+              }else{
+=======
               if(starting == 1)
               {
                 client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
@@ -324,11 +339,20 @@ function deleteDuel(duel){
               }
               else
               {
+>>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
                 client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
                 editLevel(context.username, (-levelAmount));
                 editLevel(duel.starter, levelAmount);
               }
 
+<<<<<<< HEAD
+            }else {
+              if(starting == 1){
+                  client.say(target, `${duel.starter} has won the duel! They gained ${levelAmount} levels!`);
+                  editLevel(context.username, (-levelAmount));
+                  editLevel(duel.starter, levelAmount);
+              }else{
+=======
             }else
             {
               if(starting == 1)
@@ -338,6 +362,7 @@ function deleteDuel(duel){
                   editLevel(duel.starter, levelAmount);
               }else
               {
+>>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
                 client.say(target, `${context.username} has won the duel! They gained ${levelAmount} levels!`);
                 editLevel(context.username, levelAmount);
                 editLevel(duel.starter, (-levelAmount));
@@ -367,6 +392,17 @@ function deleteDuel(duel){
         }
         break;
       default:
+<<<<<<< HEAD
+        //This checks to see if the current messager has any badges (mod, vip, broadcaster, etc)
+        if(context.badges){
+          //If its the broadcaster messaging we dont want to level them up.
+          if(context.badges.broadcaster) {return;}
+
+          //
+          if(context.badges.subscriber){
+            //console.log("A Sub has talked!");
+            exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
+=======
 
         //This is the base XP rate;
         var levelRate = 1;
@@ -407,6 +443,7 @@ function deleteDuel(duel){
             //levelRate += (parseInt(context.badges.subscriber) + 2);
             //console.log(context["username"] + ":" + context.badges.subscriber); //See what the number is;
             //exps.people[context["user-id"]].currentXP += ((parseInt(context.badges.subscriber) + 2) + msg.length/10) * 10;
+>>>>>>> 167ec2cb5313abc4d730d2af7326ef42be7d08b3
           }
           // the user is a vip. VIP's get a rate of +1
           if(context.badges.vip)
@@ -457,6 +494,23 @@ function deleteDuel(duel){
   function onConnectedHandler (addr, port) {
     console.log(`* Connected to ${addr}:${port}`);
     setInterval(socialMedia, 2700000);
+  }
+}
+
+function editLevel(username, amount)
+{
+  //console.log('yeet');
+  for(var person in exps.people)
+  {
+    if(exps.people[person].username == username)
+    {
+      exps.people[person].currentLevel += amount;
+      if(exps.people[person].currentLevel < 0)
+      {
+        exps.people[person].currentLevel = 0;
+      }
+      return;
+    }
   }
 }
 
